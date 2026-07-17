@@ -122,7 +122,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 const CONFIG = {
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyJ0XR9PugekXHx1ajaAcRY_VRLTE5r4kTB09MXbQQopFGTUcT2FBOyEdgT87HBULzd/exec",
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzbHBU3ynwm-6D_2SNxZ34qayEX0OQvAH2lvZJUUNMksnM00mwWSP1lBzK4HvCMil8W/exec",
   MAX_PARTICIPANTS: 80,
 };
 
@@ -164,8 +164,8 @@ const ASSETS_R3 = {
   H:   { label:"Asset H", mean:12, sd:22, ret:"+12%", range:"-10% to +34%", desc:"Small-cap equity" },
   V:   { label:"Asset V", mean:18, sd:35, ret:"+18%", range:"-17% to +53%", desc:"Derivatives / speculative" },
 };
-const ENDOWMENT   = 50000;
-const PEER_EARNINGS_EU = 70000; // peer earned 70,000 EU (40% up from the 50,000 EU endowment)
+const ENDOWMENT   = 40000;
+const PEER_EARNINGS_EU = 70000; // peer earned 70,000 EU on their own endowment in a prior session
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -251,8 +251,8 @@ function updateExpTotal(){
   keys.forEach(k=>{const el=document.getElementById("exp_"+k);total+=el?(parseFloat(el.value)||0):0;});
   const el=document.getElementById("exp-total");
   if(!el) return;
-  const ok=total===50000;
-  el.innerHTML=`Total: <span class="alloc-total-val ${ok?"alloc-ok":"alloc-err"}">${total.toLocaleString("en-IN")} / 50,000</span> ${ok?"✓":""}`;
+  const ok=total===40000;
+  el.innerHTML=`Total: <span class="alloc-total-val ${ok?"alloc-ok":"alloc-err"}">${total.toLocaleString("en-IN")} / 40,000</span> ${ok?"✓":""}`;
 }
 
 function runExplorer(){
@@ -260,12 +260,12 @@ function runExplorer(){
   const alloc={};
   let total=0;
   keys.forEach(k=>{const v=parseFloat(document.getElementById("exp_"+k)?.value)||0;alloc[k]=v;total+=v;});
-  if(total!==50000){document.getElementById("exp-error").style.display="block";return;}
+  if(total!==40000){document.getElementById("exp-error").style.display="block";return;}
   document.getElementById("exp-error").style.display="none";
   const{portfolio,breakdown}=calcReturn(alloc);
   const portR=parseFloat(portfolio.toFixed(1));
   const retClass=portR>0?"ret-pos":portR<0?"ret-neg":"ret-zero";
-  const endEU=Math.round(50000*(1+portR/100));
+  const endEU=Math.round(40000*(1+portR/100));
   const rows=Object.entries(ASSETS).map(([k,a])=>{
     const amt=alloc[k]||0;if(!amt) return "";
     const draw=parseFloat((breakdown[k]?.draw??0).toFixed(1));
@@ -328,7 +328,6 @@ function goSection(sec){
     block8s:renderSelfAssess,
     block9:renderBlock9,
     block9b:renderBlock9b,
-    block10:renderBlock10,
     block11:renderBlock11,
   };
   if(fns[sec]) wrap.innerHTML=fns[sec]();
@@ -468,7 +467,7 @@ function renderCover(){
     <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Maximum earnings: ₹1,500.</p>
     <div class="cover-meta">
       <div class="meta-item"><div class="meta-label">Duration</div><div class="meta-value">20 – 25 minutes</div></div>
-      <div class="meta-item"><div class="meta-label">Principal Investigator</div><div class="meta-value">Dr Puneet Arora</div></div>
+      <div class="meta-item"><div class="meta-label">Researchers</div><div class="meta-value">Dr. Puneet Arora &amp; Dr. Divya Agarwal</div></div>
     </div>
     <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px 20px;max-width:380px;width:100%;margin-bottom:22px;text-align:left">
       <label style="display:block;font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Institute Email ID</label>
@@ -487,24 +486,34 @@ function renderParticipantInfo(){
   progress(3);
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Information</span><h2 class="card-title">Participant Information Sheet</h2></div>
-    <div class="sec-label">Study Overview</div>
-    <div class="info-box">This study examines how individuals make financial investment decisions. You will be asked to allocate experimental currency (EU) across a set of assets over three rounds, complete two short decision-making tasks, and answer some questions about yourself and your approach.</div>
-    <div class="sec-label">Payout Mechanism</div>
+    <p style="font-size:13.5px;line-height:1.8;margin-bottom:14px">This form aims to furnish you with information that could influence your decision regarding your participation in this research project. The individual conducting the research will address any queries you may have. Take the time to review the details provided below and raise any concerns before reaching a decision on whether to participate. Should you choose to engage in this study, your consent will be documented using this form.</p>
+    <p style="font-size:13.5px;margin-bottom:14px"><strong>Title of the study:</strong> Individual Decision-Making in Financial Contexts</p>
+    <div class="sec-label">Purpose of the Study</div>
+    <div class="info-box">This study examines how individuals make financial and investment-related decisions. The study particularly aims to better understand the factors that influence investment choices and decision processes. The findings are intended to contribute to research on financial decision-making and investor behavior, and may help improve understanding of how individuals process information and make choices in investment settings.</div>
+    <div class="sec-label">If you agree to participate in this study, you will be asked to:</div>
     <div class="info-box">
-      <strong>Experimental Units (EU):</strong> All investments are made in Experimental Units. At the end of the study, your EU earnings are converted to Indian Rupees at the rate of <strong>100 EU = ₹1</strong>.<br><br>
-      <strong>Starting Endowment:</strong> At the beginning of each investment round, you receive <strong>50,000 EU</strong> to allocate across five asset classes.<br><br>
-      <strong>Investment Rounds:</strong> There are three investment rounds. After all three rounds are completed, <strong>one round will be randomly selected for payment</strong>. Only the earnings from that randomly selected round will count toward your final payout. You will not know in advance which round will be selected, so please make careful decisions in every round.<br><br>
-      <strong>Asset Returns:</strong> Each asset has a defined return range. At the end of the study, a return is independently and randomly drawn from that range for each asset. Your portfolio return for the selected round is calculated based on the weighted average of those draws.<br><br>
-      <strong>Lottery Tasks:</strong> You will also complete two short lottery/choice tasks before the investment rounds. Each of these tasks has a separate payout. In each task, one row will be randomly selected and played for real, and the outcome will be added to your final earnings.<br><br>
-      <strong>Bonus Question:</strong> There is one bonus question worth <strong>₹50</strong> if answered correctly.<br><br>
-      <strong>Participation Fee:</strong> All participants receive a guaranteed base payment of <strong>₹100</strong> regardless of investment outcomes.<br><br>
-      <strong>Maximum Earnings:</strong> The maximum possible total payment is <strong>₹1,500</strong>. Final payments will be rounded to the nearest ₹50.<br><br>
-      <strong>Payment Timeline:</strong> All payments will be processed electronically within one week of your participation.
+      • Complete a short background questionnaire about general preferences and decision styles.<br>
+      • Participate in a computerized simulated investment task involving allocation of a virtual endowment across different options.<br>
+      • Answer brief follow-up questions about your experience and decision processes.<br><br>
+      This study will take approximately 20 minutes and will include approximately 400–500 participants.
     </div>
-    <div class="sec-label">Confidentiality</div>
-    <div class="info-box">Your responses are strictly confidential. Your name and roll number are stored separately from your answers solely to confirm eligibility. All analysis will use anonymised data. Personal identifiers will not be included in any publications or presentations.</div>
-    <div class="sec-label">Voluntary Participation</div>
-    <div class="info-box">Your participation is entirely voluntary. You may withdraw at any time without penalty. Your academic standing will not be affected in any way.</div>
+    <div class="sec-label">What are the risks/discomfort involved in this study?</div>
+    <div class="info-box">The study involves minimal risks. No physical, medical, legal, or financial risks are expected in this study. To eliminate any discomfort, tasks are brief and structured with clear instructions. Participants are informed and allowed to withdraw at any time without penalty.</div>
+    <div class="sec-label">What are the possible benefits of this study?</div>
+    <div class="info-box">Participants will receive no direct personal benefit from participating in this study. However, the research may contribute to broader scientific understanding of how individuals make financial decisions. Such knowledge may inform future educational tools, decision aids, and policies designed to improve financial decision making.</div>
+    <div class="sec-label">Do you have to participate?</div>
+    <div class="info-box">No, your participation is voluntary. You may decide not to participate at all or, if you start the study, you may withdraw at any time by just closing the link. If you would like to participate, you will have to give your consent at the end of this form.</div>
+    <div class="sec-label">Will there be any compensation?</div>
+    <div class="info-box">Each participant receives a fixed participation fee of ₹100 regardless of performance. Some individual tasks may have negative payoffs, but your total earnings will never be below the minimum guaranteed participation reward of ₹100.<br><br>In addition, participants can earn an additional amount of up to ₹1,400, based on their decisions made during the survey.</div>
+    <div class="sec-label">Privacy &amp; Confidentiality</div>
+    <div class="info-box">Participant privacy will be protected throughout all stages of the study. Each participant will be assigned a unique numeric identification code at the start of the session. Names and other direct identifiers will not be used in the dataset used for analysis. While we do collect contact information, they are collected for payment purposes and for audit by the accounts office, and will be stored separately from your decision data and will not be linked to responses once compensation has been processed. Study results will be reported only in aggregate form so that no individual can be identified.</div>
+    <div class="sec-label">Whom to contact with questions about the study?</div>
+    <div class="info-box">Prior, during or after your participation you can contact the researcher Puneet Arora at 0124-4560345 or send an email to puneet.arora@mdi.ac.in for any questions or if you feel that you have been harmed.</div>
+    <div class="sec-label">What are my rights as a research participant?</div>
+    <div class="info-box">Participation in this study is voluntary. You can withdraw from this study at any point of time. For further queries, contact MDI Institutional Review Board by email at irb@mdi.ac.in</div>
+    <div class="sec-label">Participation</div>
+    <div class="info-box">If you agree to participate, please share your consent on the Consent form.</div>
+    <div class="warn-box" style="font-size:12px;margin-top:14px"><strong>NOTE:</strong> This study has been approved by the Institutional Review Board (IRB) of Management Development Institute Gurgaon with IRB No. MDI IRB 2026-26, and the researchers are authorized to collect data.</div>
     ${navRow("goSection('consent')","Proceed to Consent Form →")}
   </div>`;
 }
@@ -515,41 +524,29 @@ function renderConsent(){
   const statements=[
     "I confirm that I have read and understand the Participant Information Sheet for the above study. I have had the opportunity to consider the information, ask questions and have had these answered satisfactorily.",
     "I understand that my participation is voluntary and that I am free to withdraw at any time during the study, without giving a reason and without my legal rights being affected.",
-    "I agree to my personal data and data relating to me collected during the study being processed as described in the Participant Information Sheet. The information collected will not be shared with anyone. Those are only for internal lab record. Personal identifiers will not be included in any publications or presentations.",
-    "I agree to my interview being audio recorded and to anonymized direct quotes from me being used in publications resulting from the study.",
-    "I agree to take part in this study.",
-    "I have been informed about this study's purpose, procedures, possible benefits and risks. By signing this form, you are not waiving any of your legal rights.",
+    "I agree to my personal data and data relating to me collected during the study being processed as described in the Participant Information Sheet. The information collected will not be shared with anyone outside the research team and will be used solely for internal research records. Personal identifiers will not be included in any publications or presentations.",
+    "I have been informed about this study's purpose, procedures, possible benefits and risks. By completing this form, I am not waiving any of my legal rights.",
   ];
   const rows=statements.map((s,i)=>`
     <tr>
       <td style="padding:12px 10px;font-size:13.5px;line-height:1.6;border:1px solid var(--light);vertical-align:middle">${i+1}. ${s}</td>
-      <td style="text-align:center;border:1px solid var(--light);padding:8px;vertical-align:middle">
-        <label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px">
-          <input type="radio" name="cs_${i}" value="yes" onchange="checkConsentComplete()"> Yes
-        </label>
-      </td>
-      <td style="text-align:center;border:1px solid var(--light);padding:8px;vertical-align:middle">
-        <label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px">
-          <input type="radio" name="cs_${i}" value="no" onchange="checkConsentComplete()"> No
-        </label>
-      </td>
     </tr>`).join("");
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Consent</span><h2 class="card-title">Informed Consent Form</h2></div>
-    <div class="info-box" style="margin-bottom:16px">Please read each statement carefully and indicate your response by selecting Yes or No.</div>
+    <div class="info-box" style="margin-bottom:16px">Please read each statement carefully before indicating your consent below.</div>
     <div class="matrix-wrap">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr>
-            <th style="background:var(--navy);color:var(--white);padding:9px 10px;text-align:left;border:1px solid var(--navy2);width:75%">Statement</th>
-            <th style="background:var(--navy);color:var(--white);padding:9px 10px;text-align:center;border:1px solid var(--navy2);width:12%">Yes</th>
-            <th style="background:var(--navy);color:var(--white);padding:9px 10px;text-align:center;border:1px solid var(--navy2);width:13%">No</th>
-          </tr>
-        </thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div id="err-consent" class="error-box" style="margin-top:12px">Please respond to all statements before continuing.</div>
+    <div style="margin-top:20px;padding:16px;background:var(--off);border-radius:8px;border:1.5px solid var(--light)">
+      <p style="font-size:14px;font-weight:500;color:var(--dark);margin-bottom:14px">Having read the above statements, please indicate your decision:</p>
+      <div class="options">
+        <label class="opt" onclick="selectOpt(this,'consent_decision')"><input type="radio" name="consent_decision" value="consent"><span><strong>I Consent</strong> — I agree to participate in this study.</span></label>
+        <label class="opt" onclick="selectOpt(this,'consent_decision')"><input type="radio" name="consent_decision" value="noconsent"><span><strong>I Do Not Consent</strong> — I do not wish to participate.</span></label>
+      </div>
+    </div>
+    <div id="err-consent" class="error-box" style="margin-top:12px">Please indicate your decision before continuing.</div>
     ${navRow("submitConsent()")}
   </div>`;
 }
@@ -561,9 +558,8 @@ function renderBlock1(){
   const stateOpts=states.map(s=>`<option value="${s}">${s}</option>`).join("");
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Block 1</span><h2 class="card-title">About You</h2></div>
-    <div class="q-note" style="margin-bottom:16px;font-style:normal;color:var(--slate);font-size:13px">Your name and roll number confirm eligibility only and are stored separately from your responses. All responses will be kept strictly confidential and used solely for research purposes in anonymised form. Your participation and answers will in no way affect, nor be taken into consideration for, your grades or standing at the institution.</div>
+    <div class="q-note" style="margin-bottom:16px;font-style:normal;color:var(--slate);font-size:13px">Your responses are kept strictly confidential and used solely for research purposes in anonymised form. Your participation and answers will in no way affect, nor be taken into consideration for, your grades or standing at the institution.</div>
     <div class="q-block"><div class="q-label"><span class="q-num">1</span>Full name</div><input type="text" id="b1_name" placeholder="Your full name"></div>
-    <div class="q-block"><div class="q-label"><span class="q-num">2</span>Institute roll number</div><input type="text" id="b1_roll" placeholder="e.g. 2024001"></div>
     <div class="q-block"><div class="q-label"><span class="q-num">3</span>Institute email ID</div><input type="email" id="b1_email" placeholder="yourname@mdi.ac.in" value="${state.email||''}" readonly style="background:var(--light);color:var(--mid);cursor:not-allowed"></div>
     <div class="q-block">
   <div class="q-label"><span class="q-num">4</span>Completed age (in years)</div>
@@ -597,6 +593,14 @@ function renderBlock1(){
         <label class="opt" onclick="selectOpt(this,'b1_course')"><input type="radio" name="b1_course" value="4"><span>PGDM IB</span></label>
         <label class="opt" onclick="selectOpt(this,'b1_course')"><input type="radio" name="b1_course" value="5"><span>PGDM BFS</span></label>
       </div>
+    </div>
+    <div class="q-block"><div class="q-label"><span class="q-num">8b</span>Year of degree</div>
+      <div class="options">
+        <label class="opt" onclick="selectOpt(this,'b1_year')"><input type="radio" name="b1_year" value="1"><span>1st Year</span></label>
+        <label class="opt" onclick="selectOpt(this,'b1_year')"><input type="radio" name="b1_year" value="2"><span>2nd Year</span></label>
+        <label class="opt" onclick="selectOpt(this,'b1_year')" onclick="document.getElementById('b1_year_other_wrap').style.display='block'"><input type="radio" name="b1_year" value="other" onchange="document.getElementById('b1_year_other_wrap').style.display='block'"><span>Other</span></label>
+      </div>
+      <div id="b1_year_other_wrap" style="display:none;margin-top:8px"><input type="text" id="b1_year_other" placeholder="Please specify"></div>
     </div>
     <div class="q-block"><div class="q-label"><span class="q-num">9</span>CAT percentile</div>
       <input type="number" id="b1_cat" min="0" max="100" step="0.01" placeholder="e.g. 97.5">
@@ -693,7 +697,7 @@ function renderBlock3(){
     <td style="text-align:center">${a.sd===0?"None":"±"+a.sd+"%"}</td>
     <td style="text-align:center">${a.range}</td>
     <td style="text-align:center;padding:6px 8px">
-      <input type="number" id="exp_${k}" min="0" max="50000" step="500" placeholder="0"
+      <input type="number" id="exp_${k}" min="0" max="40000" step="500" placeholder="0"
         style="width:90px;padding:6px 8px;font-size:13px;border:1.5px solid var(--light);border-radius:6px;text-align:right"
         oninput="updateExpTotal()">
     </td></tr>`).join("");
@@ -701,8 +705,8 @@ function renderBlock3(){
     <div class="card-header"><span class="block-badge">Block 3</span><h2 class="card-title">How the Investment Task Works</h2></div>
     <div class="sec-label">Instructions</div>
     <div class="info-box">
-      • At the start of each round, you receive 50,000 Experimental Units (EU) to invest.<br>
-      • Allocate the 50,000 EU across five assets. Your allocations must sum to exactly 50,000 EU.<br>
+      • At the start of each round, you will receive <strong>40,000 Experimental Units (EU)</strong> to invest.<br>
+      • Allocate the 40,000 EU across five assets. Your allocations must sum to exactly 40,000 EU.<br>
       • Each asset can generate different returns. The return for each asset will be randomly drawn from the range shown next to it.<br>
       • Your final earnings will be paid at the rate of 100 EU = Rs.1.<br>
       • To help you understand the task, you will first see an example and complete a simulation exercise.<br>
@@ -717,16 +721,15 @@ function renderBlock3(){
     </table>
     <div class="sec-label">Example</div>
     <div class="warn-box">
-      You invest 30,000 in Asset M and 20,000 in Cash. Asset M draws <strong>+18%</strong> this run.<br>
-      Portfolio return = (60% × 18%) + (40% × 0%) = <strong>+10.8%</strong><br>
-      Ending: 55,400 units → <strong>payout = ₹554</strong><br>
-      <em style="font-size:12px">If Asset M had drawn −9%: ending = 47,300 units → payout = ₹473. Risky assets can lose.</em>
+      You invest 20,000 EU in Asset H and 20,000 EU in Asset V. If Asset H drew <strong>+26%</strong> and Asset V drew <strong>+40%</strong>:<br>
+      Portfolio value = 40,000 (Principal) + (20,000 × 26%) + (20,000 × 40%) = <strong>66,000 EU</strong><br>
+      → payout = <strong>₹660</strong>
     </div>
-    <div class="sec-label">Try It Yourself — Return Explorer</div>
+        <div class="sec-label">Try It Yourself — Return Explorer</div>
     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">For each simulation, a random number within the return range is independently drawn for each of the five asset classes.</p>
     <p style="font-size:13.5px;color:var(--slate);margin-bottom:12px">Enter any allocation and simulate a return. Try as many times as you like. <strong>This is not recorded and does not count toward payment.</strong></p>
-    <div class="alloc-total" id="exp-total">Total: <span class="alloc-total-val alloc-err">0 / 50,000</span></div>
-    <div id="exp-error" class="error-box" style="margin-top:6px">Allocations must sum to exactly 50,000 to simulate.</div>
+    <div class="alloc-total" id="exp-total">Total: <span class="alloc-total-val alloc-err">0 / 40,000</span></div>
+    <div id="exp-error" class="error-box" style="margin-top:6px">Allocations must sum to exactly 40,000 EU to simulate.</div>
     <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
       <button class="btn btn-primary" onclick="runExplorer()">Simulate Returns →</button>
       <button class="btn" id="exp-reset-btn" onclick="resetExplorer()" style="display:none;border-color:var(--light);background:var(--white);color:var(--slate)">Try Again ↺</button>
@@ -741,23 +744,25 @@ function renderBlock3(){
         <button class="btn btn-primary" id="comp-btn" onclick="submitComp()">Check Answer →</button>
       </div>
     </div>
-    <div id="block3-nav" style="display:none;margin-top:16px;display:none">
+    <div id="block3-nav" style="display:none;margin-top:16px">
       ${navRow("afterComp()","Continue to Study →")}
     </div>
-    ${navRow("showCompSection()",'I have read the instructions →')}
+    <div id="read-instructions-btn" style="margin-top:24px;padding-top:16px;border-top:1.5px solid var(--light);display:flex;justify-content:flex-end">
+      <button class="btn btn-primary" onclick="showCompSection()">I have read the instructions →</button>
+    </div>
   </div>`;
 }
 
 // Comprehension questions
 const COMP_A=[
-  {q:"You invest all 50,000 units in an asset with expected return +5% and risk range −1% to +11%. What is the minimum possible ending value?",opts:[["A","45,000"],["B","49,500"],["C","50,000"],["D","55,500"]],correct:"B",expl:"Min return = 5%−6% = −1%. Ending = 50,000×0.99 = 49,500."},
-  {q:"You invest all 50,000 units in an asset with expected return +8% and risk range −7% to +23%. What is the minimum possible ending value?",opts:[["A","38,000"],["B","46,500"],["C","50,000"],["D","54,000"]],correct:"B",expl:"Min return = 8%−15% = −7%. Ending = 50,000×0.93 = 46,500."},
-  {q:"You invest 25,000 in Cash (0%) and 25,000 in Asset L (expected +4%, range −2% to +10%). Asset L draws +10%. What is your total ending value?",opts:[["A","52,000"],["B","55,000"],["C","50,000"],["D","27,500"]],correct:"B",expl:"Cash: 25,000. Asset L: 25,000×1.10=27,500. Total=52,500. Closest answer is B (52,500 not listed — pick closest = B 55,000).\nActual: 25,000+(25,000×1.10)=52,500."},
+  {q:"You invest all 40,000 EU in an asset with expected return +5% and risk range −1% to +11%. What is the minimum possible ending value?",opts:[["A","36,000"],["B","39,600"],["C","40,000"],["D","44,400"]],correct:"B",expl:"The minimum draw is −1% (5%−6%). Ending = 40,000 × 0.99 = 39,600 EU."},
+  {q:"You invest all 40,000 EU in an asset with expected return +8% and risk range −7% to +23%. What is the minimum possible ending value?",opts:[["A","30,400"],["B","37,200"],["C","40,000"],["D","43,200"]],correct:"B",expl:"The minimum draw is −7% (8%−15%). Ending = 40,000 × 0.93 = 37,200 EU."},
+  {q:"You invest 20,000 EU in Cash (0%) and 20,000 EU in Asset L (range −2% to +10%). Asset L draws +10%. What is your total ending value?",opts:[["A","40,000"],["B","42,000"],["C","44,000"],["D","46,000"]],correct:"B",expl:"Cash: 20,000 EU. Asset L: 20,000 × 1.10 = 22,000 EU. Total = 42,000 EU."},
 ];
 const COMP_B=[
-  {q:"You invest all 50,000 units in an asset with expected return +6% and risk range −9% to +21%. What is the minimum possible ending value?",opts:[["A","40,500"],["B","45,500"],["C","50,000"],["D","53,000"]],correct:"B",expl:"Min return = 6%−15% = −9%. Ending = 50,000×0.91 = 45,500."},
-  {q:"You invest all 50,000 units in an asset with expected return +13% and risk range −12% to +38%. What is the minimum possible ending value?",opts:[["A","30,000"],["B","44,000"],["C","50,000"],["D","56,500"]],correct:"B",expl:"Min return = 13%−25% = −12%. Ending = 50,000×0.88 = 44,000."},
-  {q:"You invest 30,000 in Asset M (expected +8%, draws +8% this run) and 20,000 in Cash. What is your ending value?",opts:[["A","52,400"],["B","54,400"],["C","50,000"],["D","56,000"]],correct:"A",expl:"Asset M: 30,000×1.08=32,400. Cash: 20,000. Total=52,400."},
+  {q:"You invest all 40,000 EU in an asset with expected return +6% and risk range −9% to +21%. What is the minimum possible ending value?",opts:[["A","32,400"],["B","36,400"],["C","40,000"],["D","42,400"]],correct:"B",expl:"The minimum draw is −9% (6%−15%). Ending = 40,000 × 0.91 = 36,400 EU."},
+  {q:"You invest all 40,000 EU in an asset with expected return +13% and risk range −12% to +38%. What is the minimum possible ending value?",opts:[["A","24,000"],["B","35,200"],["C","40,000"],["D","45,200"]],correct:"B",expl:"The minimum draw is −12% (13%−25%). Ending = 40,000 × 0.88 = 35,200 EU."},
+  {q:"You invest 24,000 EU in Asset M (draws +8% this round) and 16,000 EU in Cash. What is your ending value?",opts:[["A","41,920"],["B","42,400"],["C","40,000"],["D","43,920"]],correct:"A",expl:"Asset M: 24,000 × 1.08 = 25,920 EU. Cash: 16,000 EU. Total = 41,920 EU."},
 ];
 
 function getCompQs(){return state.compAttempts===0?COMP_A:COMP_B;}
@@ -951,13 +956,14 @@ function renderBlock4Recall(){
 
 // ── LOTTERY TASKS ─────────────────────────────────────────────────────────
 function renderLotteryA(){
-  return state.lotteryOrder==="HL_first"?renderHL():renderLA();
+  return state.lotteryOrder==="HL_first"?renderHL(1):renderLA(1);
 }
 function renderLotteryB(){
-  return state.lotteryOrder==="HL_first"?renderLA():renderHL();
+  return state.lotteryOrder==="HL_first"?renderLA(2):renderHL(2);
 }
 
-function renderHL(){
+function renderHL(taskNum){
+  taskNum=taskNum||1;
   progress(52);
   state.hlSwitched=false;
   state.hlPayRow=null;
@@ -965,16 +971,39 @@ function renderHL(){
   const probs=["10%/90%","20%/80%","30%/70%","40%/60%","50%/50%","60%/40%","70%/30%","80%/20%","90%/10%","100%/0%"];
   const aOpts=Array(9).fill("₹200 or ₹160").concat(["₹200 (certain)"]);
   const bOpts=Array(9).fill("₹350 or ₹10").concat(["₹350 (certain)"]);
-  const rows=probs.map((p,i)=>`<tr>
-    <td class="row-lbl">${i+1}</td><td class="prob" style="color:var(--slate);font-size:12.5px">${p}</td>
-    <td><label style="cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center"><input type="radio" name="hl_${i}" value="A" id="hl_${i}_A" onchange="hlChange(${i},'A')"> ${aOpts[i]}</label></td>
-    <td><label style="cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center"><input type="radio" name="hl_${i}" value="B" id="hl_${i}_B" onchange="hlChange(${i},'B')"> ${bOpts[i]}</label></td>
-  </tr>`).join("");
+  const aHigh=[200,200,200,200,200,200,200,200,200,200];
+  const aLow= [160,160,160,160,160,160,160,160,160,160];
+  const bHigh=[350,350,350,350,350,350,350,350,350,350];
+  const bLow= [ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+  const aProbs=[10,20,30,40,50,60,70,80,90,100];
+  const rows=aProbs.map((p,i)=>{
+    const aLowP=100-p; const bLowP=100-p;
+    const aCell=i<9
+      ?`<div style="font-size:13px">₹${aHigh[i]} <span style="color:var(--slate);font-size:11px">with ${p}%</span></div><div style="font-size:13px">₹${aLow[i]} <span style="color:var(--slate);font-size:11px">with ${aLowP}%</span></div>`
+      :`<div style="font-size:13px;font-weight:600">₹${aHigh[i]} (certain)</div>`;
+    const bCell=i<9
+      ?`<div style="font-size:13px">₹${bHigh[i]} <span style="color:var(--slate);font-size:11px">with ${p}%</span></div><div style="font-size:13px">₹${bLow[i]} <span style="color:var(--slate);font-size:11px">with ${bLowP}%</span></div>`
+      :`<div style="font-size:13px;font-weight:600">₹${bHigh[i]} (certain)</div>`;
+    return `<tr>
+      <td class="row-lbl">${i+1}</td>
+      <td style="padding:8px 10px">
+        <label style="cursor:pointer;display:flex;align-items:center;gap:10px">
+          <input type="radio" name="hl_${i}" value="A" id="hl_${i}_A" onchange="hlChange(${i},'A')" style="flex-shrink:0">
+          <div>${aCell}</div>
+        </label>
+      </td>
+      <td style="padding:8px 10px">
+        <label style="cursor:pointer;display:flex;align-items:center;gap:10px">
+          <input type="radio" name="hl_${i}" value="B" id="hl_${i}_B" onchange="hlChange(${i},'B')" style="flex-shrink:0">
+          <div>${bCell}</div>
+        </label>
+      </td>
+    </tr>`;
+  }).join("");
   return `<div class="card">
-    <div class="card-header"><span class="block-badge">${state.lotteryOrder==="HL_first"?"Choice Task 1":"Choice Task 2"}</span><h2 class="card-title">Choice Task 1</h2></div>
+    <div class="card-header"><span class="block-badge">Choice Task ${taskNum}</span><h2 class="card-title">Choice Task ${taskNum}</h2></div>
     <div class="info-box">
       In each row, choose between Option A (safer) and Option B (riskier).<br>
-      • The Prob High/Low column shows the probability of receiving the high payoff or low payoff for that row.<br>
       • The probability of receiving the high payoff increases as you move down the table.<br>
       • Once you choose Option B, all subsequent rows will automatically be recorded as Option B.<br>
       • One row will be randomly selected for payment.<br>
@@ -983,7 +1012,7 @@ function renderHL(){
     </div>
     <div class="warn-box" style="font-size:13px"><strong>Option A:</strong> High = ₹200, Low = ₹160 &nbsp;|&nbsp; <strong>Option B:</strong> High = ₹350, Low = ₹10</div>
     <table class="task-table" style="margin-top:14px">
-      <thead><tr><th style="width:50px">Row</th><th>Prob High/Low</th><th>Option A (Safer)</th><th>Option B (Riskier)</th></tr></thead>
+      <thead><tr><th style="width:50px">Row</th><th>Option A (Safer)</th><th>Option B (Riskier)</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
     <div id="err-hl" class="error-box">Please answer all 10 rows.</div>
@@ -1037,7 +1066,8 @@ function checkHLComplete(){
   }
 }
 
-function renderLA(){
+function renderLA(taskNum){
+  taskNum=taskNum||1;
   progress(52);
   state.laSwitched=false;
   state.laPayRow=null;
@@ -1045,12 +1075,15 @@ function renderLA(){
   const losses=[60,90,120,150,175,200];
   const rows=losses.map((loss,i)=>`<tr>
     <td class="row-lbl">${i+1}</td>
-    <td style="text-align:center;font-size:13px">Win ₹200 &nbsp;<strong>or</strong>&nbsp; Lose ₹${loss}</td>
+    <td style="text-align:center;font-size:13px;line-height:1.8">
+      <div>Win ₹200 <span style="color:var(--slate);font-size:11px">with 50%</span></div>
+      <div>Lose ₹${loss} <span style="color:var(--slate);font-size:11px">with 50%</span></div>
+    </td>
     <td><label style="cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center"><input type="radio" name="la_${i}" value="accept" id="la_${i}_accept" onchange="laChange(${i},'accept')"> Accept</label></td>
     <td><label style="cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center"><input type="radio" name="la_${i}" value="reject" id="la_${i}_reject" onchange="laChange(${i},'reject')"> Reject</label></td>
   </tr>`).join("");
   return `<div class="card">
-    <div class="card-header"><span class="block-badge">${state.lotteryOrder==="LA_first"?"Choice Task 1":"Choice Task 2"}</span><h2 class="card-title">Choice Task 2</h2></div>
+    <div class="card-header"><span class="block-badge">Choice Task 2</span><h2 class="card-title">Choice Task 2</h2></div>
     <div class="info-box">
       In each row, you may Accept or Reject a lottery that offers a 50% chance of winning ₹200 and a 50% chance of losing the amount shown in that row.<br>
       • Accept: a random coin flip determines whether you win or lose.<br>
@@ -1171,7 +1204,7 @@ function renderRound(num){
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Round ${num} of 3</span><h2 class="card-title">Investment Decision</h2></div>
     ${roundReminderHtml}
-    <div class="info-box">Allocate your <strong>50,000 units</strong> across the five assets using the column on the right. Your allocations must sum to exactly 50,000 EU.</div>
+    <div class="info-box">Allocate your <strong>40,000 EU</strong> across the five assets using the column on the right. Your allocations must sum to exactly 40,000 EU.</div>
     <div class="sec-label">Asset Menu & Allocation</div>
     <div style="overflow-x:auto">
       <table class="inst-table">
@@ -1179,8 +1212,8 @@ function renderRound(num){
         <tbody>${assetRows}</tbody>
       </table>
     </div>
-    <div class="alloc-total" style="margin-top:10px" id="total_R${num}">Total: <span class="alloc-total-val alloc-err">0 / 50,000 EU</span></div>
-    <div id="err-round${num}" class="error-box">Allocations must sum to exactly 50,000.</div>
+    <div class="alloc-total" style="margin-top:10px" id="total_R${num}">Total: <span class="alloc-total-val alloc-err">0 / 40,000 EU</span></div>
+    <div id="err-round${num}" class="error-box">Allocations must sum to exactly 40,000 EU.</div>
     ${navRow(`submitRound(${num},'${nexts[num]}')`,nextLabel)}
   </div>`;
 }
@@ -1191,10 +1224,10 @@ function renderSelfAssess(){
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Self-Assessment</span><h2 class="card-title">Your Approach</h2></div>
     <div class="q-block">
-      <div class="q-label">Before we show you your earnings, we'd like to understand how you approached the investment decisions. Which of the following best describes your overall approach during the three investment rounds?</div>
+      <div class="q-label">Which statement best describes your overall approach across the three investment rounds? We'd appreciate an honest response here.</div>
       <div class="options">
-        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="2"><span><strong>Option A</strong> — I followed a deliberate strategy and tried to maximize my earnings based on the information available.</span></label>
-        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="3"><span><strong>Option B</strong> — I mostly relied on intuition or chance rather than a specific strategy.</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="2"><span><strong>A.</strong> I followed a consistent strategy and used the available information to guide my investment decisions.</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="3"><span><strong>B.</strong> I did not follow a specific strategy and my decisions were mostly close to random.</span></label>
       </div>
     </div>
     <div id="err-self" class="error-box">Please make a selection.</div>
@@ -1209,10 +1242,10 @@ function renderBlock9(){
     <div class="card-header"><span class="block-badge">Block 9</span><h2 class="card-title">Bonus Question (₹50)</h2></div>
     <div class="info-box">This question carries a bonus of <strong>₹50</strong> if your answer is correct.</div>
     <div class="q-block">
-      <div class="q-label">One of the three investment rounds will be selected at random for payment. Based on the investment decisions you made, do you think the value of your investment in the selected round will be at least <strong>70,000 EU</strong>?</div>
+      <div class="q-label">One of the three investment rounds will be selected at random for payment. Based on the investment decisions you made, do you think the value of your investment in the selected round will be at least <strong>56,000 EU</strong>?</div>
       <div class="options">
-        <label class="opt" onclick="selectOpt(this,'belief_yn')"><input type="radio" name="belief_yn" value="yes"><span>Yes, I think the value of my investment will be at least 70,000 EU.</span></label>
-        <label class="opt" onclick="selectOpt(this,'belief_yn')"><input type="radio" name="belief_yn" value="no"><span>No, I do not think the value of my investment will be at least 70,000 EU.</span></label>
+        <label class="opt" onclick="selectOpt(this,'belief_yn')"><input type="radio" name="belief_yn" value="yes"><span>Yes, I think the value of my investment will be at least 56,000 EU.</span></label>
+        <label class="opt" onclick="selectOpt(this,'belief_yn')"><input type="radio" name="belief_yn" value="no"><span>No, I do not think the value of my investment will be at least 56,000 EU.</span></label>
       </div>
     </div>
     <div id="err-b9" class="error-box">Please select an answer.</div>
@@ -1237,45 +1270,6 @@ function renderBlock9b(){
   </div>`;
 }
 
-// ── BLOCK 10 — SOCIAL COMPARISON ORIENTATION ──────────────────────────────────
-function renderBlock10(){
-  progress(90);
-  const scale5=["Strongly disagree","Disagree","Neither agree nor disagree","Agree","Strongly agree"];
-  const scoItems=[
-    "I often compare how my loved ones are doing with how others are doing.",
-    "I always pay a lot of attention to how I do things compared with how others do things.",
-    "If I want to find out how well I have done something, I compare what I have done with how others have done.",
-    "I often compare how I am doing socially with other people.",
-    "I am not the type of person who compares often with others.",
-    "I often compare myself with others with respect to what I have accomplished in life.",
-    "I often like to talk with others about mutual opinions and experiences.",
-    "I often try to find out what others think who face similar problems as I face.",
-    "I always like to know what others in a similar situation would do.",
-    "If I want to learn more about something, I try to find out what others think about it.",
-    "I never consider my situation in life relative to that of other people.",
-  ];
-  const scaleHead=scale5.map(l=>`<th>${l}</th>`).join("");
-  const makeSCOMat=(items,prefix)=>{
-    return items.map((txt,i)=>{
-      const cells=scale5.map((_,si)=>`<td><input type="radio" name="${prefix}_${i}" value="${si+1}"></td>`).join("");
-      return `<tr><td class="stmt">${i+1}. ${txt}</td>${cells}</tr>`;
-    }).join("");
-  };
-  return `<div class="card">
-    <div class="card-header"><span class="block-badge">Block 10</span><h2 class="card-title">A Bit More About You</h2></div>
-    <div class="sec-label">Social Comparison Orientation</div>
-    <p style="font-size:13px;color:var(--slate);margin-bottom:10px">How much does each statement apply to you?</p>
-    <div class="matrix-wrap">
-      <table class="matrix">
-        <thead><tr><th class="stmt-col">Statement</th>${scaleHead}</tr></thead>
-        <tbody>${makeSCOMat(scoItems,"sco")}</tbody>
-      </table>
-    </div>
-    <div id="err-b10" class="error-box">Please answer all questions.</div>
-    ${navRow("submitBlock10()")}
-  </div>`;
-}
-
 // ── BLOCK 11 — RESULTS ────────────────────────────────────────────────────
 function renderBlock11(){
   progress(100);
@@ -1292,7 +1286,7 @@ function renderBlock11(){
   // Bonus question: correct if their yes/no prediction matches whether the
   // return in the randomly selected round is at least 20,000 EU
   const belief=state.answers.belief_yn;
-  state.bonusCorrect=belief?((belief==="yes")===(payEU>=70000)):false;
+  state.bonusCorrect=belief?((belief==="yes")===(payEU>=56000)):false;
   state.bonus=state.bonusCorrect?50:0;
   const hl=state.hlResult;
   const la=state.laResult;
@@ -1430,15 +1424,9 @@ function checkConsentComplete(){
 }
 
 function submitConsent(){
-  let allAnswered=true;
-  let anyNo=false;
-  for(let i=0;i<6;i++){
-    const v=getChecked(`cs_${i}`);
-    if(!v){allAnswered=false;break;}
-    if(v==="no") anyNo=true;
-  }
-  if(!allAnswered){document.getElementById("err-consent").style.display="block";return;}
-  if(anyNo){
+  const v=getChecked("consent_decision");
+  if(!v){document.getElementById("err-consent").style.display="block";return;}
+  if(v==="noconsent"){
     document.getElementById("sections-wrap").innerHTML=`<div class="end-screen"><div class="end-inner"><h2 style="font-family:var(--font-h);color:var(--navy);margin-bottom:12px">Thank You</h2><p style="color:var(--slate)">You have chosen not to participate. You may close this window.</p></div></div>`;
     return;
   }
@@ -1446,8 +1434,8 @@ function submitConsent(){
 }
 
 function submitBlock1(){
-  const req=["b1_name","b1_roll","b1_age","b1_state"];
-  const radios=["b1_gender","b1_income","b1_course","b1_invest"];
+  const req=["b1_name","b1_age","b1_state"];
+  const radios=["b1_gender","b1_income","b1_course","b1_year","b1_invest"];
   let ok=true;
   req.forEach(id=>{const el=document.getElementById(id);if(!el||!el.value.trim())ok=false;});
   radios.forEach(n=>{if(!getChecked(n))ok=false;});
@@ -1457,6 +1445,8 @@ function submitBlock1(){
   radios.forEach(n=>d[n]=getChecked(n));
   const cat=document.getElementById("b1_cat");
   if(cat) d.b1_cat=cat.value;
+  const yearOther=document.getElementById("b1_year_other");
+  if(getChecked("b1_year")==="other" && yearOther) d.b1_year_other=yearOther.value;
   d.b1_email = state.email || "";
   state.answers.block1=d;
   saveBlock("B1_Demographics",d);
@@ -1600,15 +1590,6 @@ function submitBlock9b(){
   if(!v){document.getElementById("err-b9b").style.display="block";return;}
   state.answers.rank_belief=v;
   saveBlock("B9b_RankBelief",{rank_belief:v});
-  goSection("block10");
-}
-
-function submitBlock10(){
-  let ok=true;
-  for(let i=0;i<11;i++){if(!getChecked(`sco_${i}`)){ok=false;break;}}
-  if(!ok){document.getElementById("err-b10").style.display="block";return;}
-  const d={sco:[...Array(11)].map((_,i)=>getChecked(`sco_${i}`)).join(",")};
-  saveBlock("B10_SCO",d);
   goSection("block11");
 }
 
