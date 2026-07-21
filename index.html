@@ -165,7 +165,7 @@ const ASSETS_R3 = {
   V:   { label:"Asset V", mean:18, sd:35, ret:"+18%", range:"-17% to +53%", desc:"Derivatives / speculative" },
 };
 const ENDOWMENT   = 40000;
-const PEER_EARNINGS_EU = 70000; // peer earned 70,000 EU on their own endowment in a prior session
+const PEER_EARNINGS_EU = 56000; // peer earned 56,000 EU (40% return on 40,000 EU endowment)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -879,9 +879,9 @@ function renderBlock4(){
     <div class="info-box" style="margin-bottom:14px">
       Your Participant ID: <strong>${state.pid}</strong><br>
       Your paired participant ID: <strong>P-42</strong><br>
-      Your paired participant's earnings in the experiment: <strong>70,000 EU</strong>
+      Your paired participant's earnings in the experiment: <strong>56,000 EU</strong>
     </div>
-    <div class="treatment-box ${cls}"><p style="font-size:14px;line-height:1.6">We asked the participant what they believed contributed most to their earnings. They responded:<br><em>"${quote}"</em></p></div>`;
+    <div class="treatment-box ${cls}"><p style="font-size:14px;line-height:1.6"><br><em>"${quote}"</em></p></div>`;
   const reflHtml=state.condition==="LuckReflect"?`
     <div style="margin-top:20px;padding-top:16px;border-top:1.5px solid var(--light)">
       <div class="sec-label">Before you invest — your goals</div>
@@ -948,16 +948,16 @@ function renderBlock4Recall(){
     const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
     const combinedOpts=isLuck
       ?[
-        ["70k_luck","Paired participant P-42 earned 70,000 EU, mainly due to luck (favorable returns)."],
-        ["70k_skill","Paired participant P-42 earned 70,000 EU, mainly due to skill (investment strategy)."],
-        ["60k_luck","Paired participant P-42 earned 60,000 EU, mainly due to luck (favorable returns)."],
-        ["60k_skill","Paired participant P-42 earned 60,000 EU, mainly due to skill (investment strategy)."],
+        ["70k_luck","Paired participant P-42 earned 56,000 EU, mainly due to luck."],
+        ["70k_skill","Paired participant P-42 earned 56,000 EU, mainly due to skill."],
+        ["60k_luck","Paired participant P-42 earned 48,000 EU, mainly due to luck."],
+        ["60k_skill","Paired participant P-42 earned 48,000 EU, mainly due to skill."],
       ]
       :[
-        ["70k_skill","Paired participant P-42 earned 70,000 EU, mainly due to skill (investment strategy)."],
-        ["70k_luck","Paired participant P-42 earned 70,000 EU, mainly due to luck (favorable returns)."],
-        ["60k_skill","Paired participant P-42 earned 60,000 EU, mainly due to skill (investment strategy)."],
-        ["60k_luck","Paired participant P-42 earned 60,000 EU, mainly due to luck (favorable returns)."],
+        ["70k_skill","Paired participant P-42 earned 56,000 EU, mainly due to skill."],
+        ["70k_luck","Paired participant P-42 earned 56,000 EU, mainly due to luck."],
+        ["60k_skill","Paired participant P-42 earned 48,000 EU, mainly due to skill."],
+        ["60k_luck","Paired participant P-42 earned 48,000 EU, mainly due to luck."],
       ];
     const combinedCorrect=isLuck?"70k_luck":"70k_skill";
     const combinedHtml=combinedOpts.map(([v,l])=>`<label class="opt" onclick="selectOpt(this,'ac_combined')"><input type="radio" name="ac_combined" value="${v}"><span>${l}</span></label>`).join("");
@@ -1176,7 +1176,7 @@ function renderPreInvestment(){
   const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
   const reminderHtml=state.condition!=="Control"?`
     <div class="warn-box" style="margin-top:16px">
-      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of around <strong>56,000 EU</strong>.<br><br>
+      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>56,000 EU</strong>. <br><br>
       <em>"${isLuck
         ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
         :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well."
@@ -1219,10 +1219,10 @@ function renderRound(num){
   const isLuckR=state.condition==="Luck"||state.condition==="LuckReflect";
   const roundReminderHtml=state.condition!=="Control"?`
     <div class="warn-box" style="margin-bottom:14px;font-size:13.5px">
-      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>70,000 EU</strong>. When asked what contributed most to their earnings, they responded:<br><br>
+      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>56,000 EU</strong>. <br><br>
       <em>&ldquo;${isLuckR
-        ?'I believe my earnings were mainly due to luck. My investment choices happened to be matched with favorable returns.'
-        :'I believe my earnings were mainly due to my investment decisions. I used an investment strategy that I thought would perform well.'
+        ?'We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions.'
+        :'We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.'
       }&rdquo;</em>
     </div>`:"";
   return `<div class="card">
@@ -1517,8 +1517,8 @@ function submitRecall(){
       if(!combinedOk&&!state.recallReprompted){
         state.recallReprompted=true;
         const info=isLuck
-          ?`Your paired participant's earnings in the experiment were <strong>70,000 EU</strong>. They responded: <em>"I believe my earnings were mainly due to luck. My investment choices happened to be matched with favorable returns."</em>`
-          :`Your paired participant's earnings in the experiment were <strong>70,000 EU</strong>. They responded: <em>"I believe my earnings were mainly due to my investment decisions. I used an investment strategy that I thought would perform well."</em>`;
+          ?`Your paired participant's earnings in the experiment were <strong>56,000 EU</strong>. They responded: <em>"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."</em>`
+          :`Your paired participant's earnings in the experiment were <strong>56,000 EU</strong>. They responded: <em>"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well."</em>`;
         const rp=document.getElementById("recall-reprompt");
         rp.innerHTML=`<div class="warn-box"><strong>Not quite.</strong> ${info} Please review your answer and continue.</div>`;
         rp.style.display="block";
