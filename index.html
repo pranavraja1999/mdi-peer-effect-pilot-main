@@ -870,8 +870,8 @@ function renderBlock4(){
   const cls=isLuck?"luck":"skill";
   const label=isLuck?"Luck":"Skill";
   const quote=isLuck
-    ?"I believe my earnings were mainly due to luck. My investment choices happened to be matched with favorable returns."
-    :"I believe my earnings were mainly due to my investment decisions. I used an investment strategy that I thought would perform well.";
+    ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
+    :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.";
   const peerCard=`<div class="peer-card"><div class="peer-avatar">P42</div><div class="peer-info"><div class="peer-name">Participant P-42</div><div class="peer-sub">MBA, Second Year · Partner Business School</div></div></div>`;
   const content=`
     <p style="font-size:14px;line-height:1.7;margin-bottom:14px">In this investment game, you have been matched with a participant who completed a similar task in an earlier session. Before you begin, we will show you some information about this participant's outcome in the task. This information is provided for reference only. The other participant's earnings will not affect your investment opportunities, returns, or earnings in any way. Your earnings will depend solely on your own investment decisions and the returns realized during the task.</p>
@@ -1176,10 +1176,10 @@ function renderPreInvestment(){
   const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
   const reminderHtml=state.condition!=="Control"?`
     <div class="warn-box" style="margin-top:16px">
-      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>70,000 EU</strong>. When asked what contributed most to their earnings, they responded:<br><br>
+      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of around <strong>56,000 EU</strong>.<br><br>
       <em>"${isLuck
-        ?"I believe my earnings were mainly due to luck. My investment choices happened to be matched with <strong>favorable returns</strong>."
-        :"I believe my earnings were mainly due to my investment decisions. I used an <strong>investment strategy</strong> that I thought would perform well."
+        ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
+        :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well."
       }"</em>
     </div>`:"";
   return `<div class="card">
