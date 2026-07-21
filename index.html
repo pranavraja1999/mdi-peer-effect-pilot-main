@@ -316,10 +316,13 @@ function progress(pct){
 function goSection(sec){
   state.section=sec;
   const wrap=document.getElementById("sections-wrap");
+  const postRender={
+    block3b: ()=>{ showCompQ(1); }
+  };
   const fns={
     cover:renderCover, participantInfo:renderParticipantInfo, consent:renderConsent,
     block1:renderBlock1, block2:renderBlock2,
-    block3:renderBlock3, block4:renderBlock4,
+    block3:renderBlock3, block3b:renderBlock3b, block4:renderBlock4,
     block4r:renderBlock4Recall,
     prelottery:renderPreLottery,
     preInvestment:renderPreInvestment,
@@ -331,6 +334,7 @@ function goSection(sec){
     block11:renderBlock11,
   };
   if(fns[sec]) wrap.innerHTML=fns[sec]();
+  if(postRender[sec]) postRender[sec]();
   attachHandlers(sec);
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -464,9 +468,10 @@ function renderCover(){
   return `<div class="cover">
     <div class="cover-logo">Management Development Institute Gurgaon</div>
     <h1 class="cover-title">Investment Decision Study</h1>
-    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Maximum earnings: ₹1,500.</p>
+    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Average earnings: ₹700 (min ₹100, max ₹1,400).</p>
     <div class="cover-meta">
-      <div class="meta-item"><div class="meta-label">Duration</div><div class="meta-value">20 – 25 minutes</div></div>
+      <div class="meta-item"><div class="meta-label">Duration</div><div class="meta-value">~15 minutes</div></div>
+      <div class="meta-item"><div class="meta-label">Earnings</div><div class="meta-value">Min ₹100 · Avg ₹700 · Max ₹1,400</div></div>
       <div class="meta-item"><div class="meta-label">Researchers</div><div class="meta-value">Dr. Puneet Arora &amp; Dr. Divya Agarwal</div></div>
     </div>
     <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px 20px;max-width:380px;width:100%;margin-bottom:22px;text-align:left">
@@ -504,7 +509,7 @@ function renderParticipantInfo(){
     <div class="sec-label">Do you have to participate?</div>
     <div class="info-box">No, your participation is voluntary. You may decide not to participate at all or, if you start the study, you may withdraw at any time by just closing the link. If you would like to participate, you will have to give your consent at the end of this form.</div>
     <div class="sec-label">Will there be any compensation?</div>
-    <div class="info-box">Each participant receives a fixed participation fee of ₹100 regardless of performance. Some individual tasks may have negative payoffs, but your total earnings will never be below the minimum guaranteed participation reward of ₹100.<br><br>In addition, participants can earn an additional amount of up to ₹1,400, based on their decisions made during the survey.</div>
+    <div class="info-box">Each participant receives a fixed This study takes approximately 15 minutes to complete. Participants receive a minimum guaranteed payment of ₹100. Based on their decisions, participants can earn more — average earnings are approximately ₹700, with a maximum possible earning of ₹1,400.</div>
     <div class="sec-label">Privacy &amp; Confidentiality</div>
     <div class="info-box">Participant privacy will be protected throughout all stages of the study. Each participant will be assigned a unique numeric identification code at the start of the session. Names and other direct identifiers will not be used in the dataset used for analysis. While we do collect contact information, they are collected for payment purposes and for audit by the accounts office, and will be stored separately from your decision data and will not be linked to responses once compensation has been processed. Study results will be reported only in aggregate form so that no individual can be identified.</div>
     <div class="sec-label">Whom to contact with questions about the study?</div>
@@ -689,9 +694,8 @@ function renderBlock2(){
 }
 
 // ── BLOCK 3 — INSTRUCTIONS ────────────────────────────────────────────────
-function renderBlock3(){
-  progress(30);
-  const assetRows=Object.entries(ASSETS).map(([k,a])=>`
+function makeAssetTable(){
+  return Object.entries(ASSETS).map(([k,a])=>`
     <tr><td><strong>${a.label}</strong></td><td>${a.desc}</td>
     <td style="text-align:center">${a.ret}</td>
     <td style="text-align:center">${a.sd===0?"None":"±"+a.sd+"%"}</td>
@@ -701,18 +705,24 @@ function renderBlock3(){
         style="width:90px;padding:6px 8px;font-size:13px;border:1.5px solid var(--light);border-radius:6px;text-align:right"
         oninput="updateExpTotal()">
     </td></tr>`).join("");
+}
+
+// ── BLOCK 3: Simulation (practice) ──────────────────────────────────────────
+function renderBlock3(){
+  progress(28);
+  const assetRows=makeAssetTable();
   return `<div class="card">
-    <div class="card-header"><span class="block-badge">Block 3</span><h2 class="card-title">How the Investment Task Works</h2></div>
+    <div class="card-header"><span class="block-badge">Block 3 — Step 1 of 2</span><h2 class="card-title">How the Investment Task Works</h2></div>
+    <div style="background:var(--navy);color:#fff;border-radius:8px;padding:13px 18px;margin-bottom:18px;font-size:14px;font-weight:600;letter-spacing:0.01em">
+      ⚠ This is a practice round. Your decisions here are NOT recorded and will NOT affect your earnings.
+    </div>
     <div class="sec-label">Instructions</div>
     <div class="info-box">
       • At the start of each round, you will receive <strong>40,000 Experimental Units (EU)</strong> to invest.<br>
       • Allocate the 40,000 EU across five assets. Your allocations must sum to exactly 40,000 EU.<br>
       • Each asset can generate different returns. The return for each asset will be randomly drawn from the range shown next to it.<br>
-      • Your final earnings will be paid at the rate of 100 EU = Rs.1.<br>
-      • To help you understand the task, you will first see an example and complete a simulation exercise.<br>
-      • You will then answer a few comprehension questions.<br>
-      • You have two attempts to answer at least one comprehension question correctly.<br>
-      • If you are unable to do so, the survey will end and you will receive only the Rs.100 participation payment.<br>
+      • Your final earnings will be paid at the rate of 100 EU = ₹1.<br>
+      • After this practice round, you will answer a few understanding questions before the main investment game begins.
     </div>
     <div class="sec-label">Asset Menu</div>
     <table class="inst-table">
@@ -725,9 +735,9 @@ function renderBlock3(){
       Portfolio value = 40,000 (Principal) + (20,000 × 26%) + (20,000 × 40%) = <strong>66,000 EU</strong><br>
       → payout = <strong>₹660</strong>
     </div>
-        <div class="sec-label">Try It Yourself — Return Explorer</div>
+    <div class="sec-label">Try It Yourself — Return Explorer</div>
     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">For each simulation, a random number within the return range is independently drawn for each of the five asset classes.</p>
-    <p style="font-size:13.5px;color:var(--slate);margin-bottom:12px">Enter any allocation and simulate a return. Try as many times as you like. <strong>This is not recorded and does not count toward payment.</strong></p>
+    <p style="font-size:13.5px;color:var(--slate);margin-bottom:12px">Enter any allocation and simulate a return. Try as many times as you like.</p>
     <div class="alloc-total" id="exp-total">Total: <span class="alloc-total-val alloc-err">0 / 40,000</span></div>
     <div id="exp-error" class="error-box" style="margin-top:6px">Allocations must sum to exactly 40,000 EU to simulate.</div>
     <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
@@ -735,8 +745,29 @@ function renderBlock3(){
       <button class="btn" id="exp-reset-btn" onclick="resetExplorer()" style="display:none;border-color:var(--light);background:var(--white);color:var(--slate)">Try Again ↺</button>
     </div>
     <div id="exp-result" style="display:none;margin-top:14px"></div>
-    <div id="comp-section" style="display:none;margin-top:20px">
-      <div class="warn-box" id="comp-banner">Attempt 1 of 2 — answer at least one correctly.</div>
+    <div style="margin-top:24px;padding-top:16px;border-top:1.5px solid var(--light);display:flex;justify-content:flex-end">
+      <button class="btn btn-primary" onclick="goSection('block3b')">Continue to Understanding Questions →</button>
+    </div>
+  </div>`;
+}
+
+// ── BLOCK 3b: Comprehension questions ───────────────────────────────────────
+function renderBlock3b(){
+  progress(33);
+  const assetRows=makeAssetTable();
+  return `<div class="card">
+    <div class="card-header"><span class="block-badge">Block 3 — Step 2 of 2</span><h2 class="card-title">Understanding Questions</h2></div>
+    <div class="info-box">
+      The asset menu is shown below for reference. Please answer the questions that follow — you have <strong>two attempts</strong> to answer at least one correctly.<br>
+      If you are unable to do so, the survey will end and you will receive only the ₹100 participation fee.
+    </div>
+    <div class="sec-label">Asset Menu (for reference)</div>
+    <table class="inst-table">
+      <thead><tr><th>Asset</th><th>Description</th><th>Expected Return</th><th>Risk Range</th><th>Return Range</th><th>Amount to Allocate (EU)</th></tr></thead>
+      <tbody>${assetRows}</tbody>
+    </table>
+    <div style="margin-top:20px">
+      <div class="warn-box" id="comp-banner">Attempt 1 of 2 — answer at least one correctly to proceed.</div>
       <div id="comp-q-wrap"></div>
       <div id="err-comp" class="error-box">Please select an answer.</div>
       <div id="comp-expl" style="display:none;background:#eaf3de;border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13.5px;color:var(--dark);margin-top:8px"></div>
@@ -746,9 +777,6 @@ function renderBlock3(){
     </div>
     <div id="block3-nav" style="display:none;margin-top:16px">
       ${navRow("afterComp()","Continue to Study →")}
-    </div>
-    <div id="read-instructions-btn" style="margin-top:24px;padding-top:16px;border-top:1.5px solid var(--light);display:flex;justify-content:flex-end">
-      <button class="btn btn-primary" onclick="showCompSection()">I have read the instructions →</button>
     </div>
   </div>`;
 }
@@ -767,11 +795,7 @@ const COMP_B=[
 
 function getCompQs(){return state.compAttempts===0?COMP_A:COMP_B;}
 
-function showCompSection(){
-  document.querySelector('[onclick="showCompSection()"]').style.display="none";
-  document.getElementById("comp-section").style.display="block";
-  showCompQ(1);
-}
+// showCompSection removed — block3b now auto-initialises comp questions
 
 function showCompQ(num){
   const cqs=getCompQs();
