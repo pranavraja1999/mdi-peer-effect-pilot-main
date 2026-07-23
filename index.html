@@ -122,7 +122,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 const CONFIG = {
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzbHBU3ynwm-6D_2SNxZ34qayEX0OQvAH2lvZJUUNMksnM00mwWSP1lBzK4HvCMil8W/exec",
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyI-8ENur1d14gzsJxxjd__p0OT8ahsC3eWlN1HtbL0PUzc7nDg5pUi_Na5h635soqV/exec",
   MAX_PARTICIPANTS: 80,
 };
 
@@ -165,7 +165,19 @@ const ASSETS_R3 = {
   V:   { label:"Asset V", mean:18, sd:35, ret:"+18%", range:"-17% to +53%", desc:"Derivatives / speculative" },
 };
 const ENDOWMENT   = 40000;
-const PEER_EARNINGS_EU = 56000; // peer earned 56,000 EU (40% return on 40,000 EU endowment)
+const PEER_EARNINGS_EU = 56000; // peer earned around 56,000 EU (40% return on 40,000 EU endowment)
+
+// Fixed peer IDs per treatment arm — formatted to match participant IDs so the
+// peer appears to be drawn from the same participant pool.
+const PEER_IDS = {
+  Luck:        "P_1782648301744_K3M9T",
+  Skill:       "P_1782651887203_R7WQ2",
+  LuckReflect: "P_1782659412056_B4XN8",
+};
+function peerId(){ return PEER_IDS[state.condition] || PEER_IDS.Luck; }
+
+// Human silhouette avatar (inline SVG) — replaces the "P42" text avatar
+const PEER_AVATAR_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.3 0-9.8 1.6-9.8 4.9v2.5h19.6v-2.5c0-3.3-6.5-4.9-9.8-4.9z"/></svg>`;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -374,6 +386,7 @@ function saveBlock(block, data){
     timestamp:    new Date().toISOString(),
     condition:    state.condition    || "",
     conditionNum: state.conditionNum || "",
+    lotteryOrder: state.lotteryOrder || "",
     payRound:     state.payRound     || "",
     block,
     ...data
@@ -413,13 +426,24 @@ function checkEmailAndStart(email){
       state.email = email;
       state.pid   = res.pid || uid();
       state.resumeSection = res.lastSection || "block1";
+      // Restore the arm originally assigned to this participant
+      if(res.condition){
+        state.condition    = res.condition;
+        state.conditionNum = res.conditionNum || null;
+      }
+      if(res.lotteryOrder) state.lotteryOrder = res.lotteryOrder;
+      if(res.payRound)     state.payRound     = Number(res.payRound) || null;
+      if(!state.condition)    randomCondition();
+      if(!state.lotteryOrder) randomLotteryOrder();
       document.getElementById("app").innerHTML=`
         <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><div class="progress-label">0% complete</div></div>
         <div class="shell" id="sections-wrap"></div>`;
       goSection(state.resumeSection || "block1");
     } else {
       state.email = email;
-      startSurvey();
+      // Server returns the next arm in strict rotation:
+      // Control -> Luck -> Skill -> LuckReflect -> repeat
+      startSurvey(res.assignedCondition, res.assignedConditionNum);
     }
   };
 
@@ -431,7 +455,7 @@ function checkEmailAndStart(email){
       delete window[cbName];
       const s = document.getElementById("jsonp-email-check");
       if(s) s.remove();
-      console.warn("Email check timed out — proceeding");
+      console.warn("Email check timed out — falling back to local random assignment");
       state.email = email;
       startSurvey();
     }
@@ -529,8 +553,10 @@ function renderConsent(){
   const statements=[
     "I confirm that I have read and understand the Participant Information Sheet for the above study. I have had the opportunity to consider the information, ask questions and have had these answered satisfactorily.",
     "I understand that my participation is voluntary and that I am free to withdraw at any time during the study, without giving a reason and without my legal rights being affected.",
-    "I agree to my personal data and data relating to me collected during the study being processed as described in the Participant Information Sheet. The information collected will not be shared with anyone outside the research team and will be used solely for internal research records. Personal identifiers will not be included in any publications or presentations.",
+    "I agree to my personal data and data relating to me collected during the study being processed as described in the Participant Information Sheet. I understand that my name, email address, phone number, and payment records will be used only for internal lab records and will be securely destroyed within one month of study completion (by September).",
+    "I understand that once these identifiers are removed, my anonymised responses may become part of a permanent dataset that may be uploaded to public repositories such as OSF for transparency and reproducibility. No personal identifiers will be included in this public dataset or in any publications or presentations.",
     "I have been informed about this study's purpose, procedures, possible benefits and risks. By completing this form, I am not waiving any of my legal rights.",
+    "I agree to take part in this study",
   ];
   const rows=statements.map((s,i)=>`
     <tr>
@@ -872,16 +898,17 @@ function renderBlock4(){
   const quote=isLuck
     ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
     :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.";
-  const peerCard=`<div class="peer-card"><div class="peer-avatar">P42</div><div class="peer-info"><div class="peer-name">Participant P-42</div><div class="peer-sub">MBA, Second Year · Partner Business School</div></div></div>`;
+  const pid=peerId();
+  const peerCard=`<div class="peer-card"><div class="peer-avatar">${PEER_AVATAR_SVG}</div><div class="peer-info"><div class="peer-name">Participant ${pid}</div><div class="peer-sub">Management Development Institute, Gurgaon</div></div></div>`;
   const content=`
     <p style="font-size:14px;line-height:1.7;margin-bottom:14px">In this investment game, you have been matched with a participant who completed a similar task in an earlier session. Before you begin, we will show you some information about this participant's outcome in the task. This information is provided for reference only. The other participant's earnings will not affect your investment opportunities, returns, or earnings in any way. Your earnings will depend solely on your own investment decisions and the returns realized during the task.</p>
     ${peerCard}
     <div class="info-box" style="margin-bottom:14px">
       Your Participant ID: <strong>${state.pid}</strong><br>
-      Your paired participant ID: <strong>P-42</strong><br>
-      Your paired participant's earnings in the experiment: <strong>56,000 EU</strong>
+      Your paired participant ID: <strong>${pid}</strong><br>
+      Your paired participant's earnings in the experiment: <strong>around 56,000 EU</strong>
     </div>
-    <div class="treatment-box ${cls}"><p style="font-size:14px;line-height:1.6"><br><em>"${quote}"</em></p></div>`;
+    <div class="treatment-box ${cls}"><p style="font-size:14px;line-height:1.6">${quote}</p></div>`;
   const reflHtml=state.condition==="LuckReflect"?`
     <div style="margin-top:20px;padding-top:16px;border-top:1.5px solid var(--light)">
       <div class="sec-label">Before you invest — your goals</div>
@@ -948,16 +975,16 @@ function renderBlock4Recall(){
     const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
     const combinedOpts=isLuck
       ?[
-        ["70k_luck","Paired participant P-42 earned 56,000 EU, mainly due to luck."],
-        ["70k_skill","Paired participant P-42 earned 56,000 EU, mainly due to skill."],
-        ["60k_luck","Paired participant P-42 earned 48,000 EU, mainly due to luck."],
-        ["60k_skill","Paired participant P-42 earned 48,000 EU, mainly due to skill."],
+        ["70k_luck",`Paired participant ${peerId()} earned around 56,000 EU, mainly due to luck.`],
+        ["70k_skill",`Paired participant ${peerId()} earned around 56,000 EU, mainly due to skill.`],
+        ["60k_luck",`Paired participant ${peerId()} earned around 48,000 EU, mainly due to luck.`],
+        ["60k_skill",`Paired participant ${peerId()} earned around 48,000 EU, mainly due to skill.`],
       ]
       :[
-        ["70k_skill","Paired participant P-42 earned 56,000 EU, mainly due to skill."],
-        ["70k_luck","Paired participant P-42 earned 56,000 EU, mainly due to luck."],
-        ["60k_skill","Paired participant P-42 earned 48,000 EU, mainly due to skill."],
-        ["60k_luck","Paired participant P-42 earned 48,000 EU, mainly due to luck."],
+        ["70k_skill",`Paired participant ${peerId()} earned around 56,000 EU, mainly due to skill.`],
+        ["70k_luck",`Paired participant ${peerId()} earned around 56,000 EU, mainly due to luck.`],
+        ["60k_skill",`Paired participant ${peerId()} earned around 48,000 EU, mainly due to skill.`],
+        ["60k_luck",`Paired participant ${peerId()} earned around 48,000 EU, mainly due to luck.`],
       ];
     const combinedCorrect=isLuck?"70k_luck":"70k_skill";
     const combinedHtml=combinedOpts.map(([v,l])=>`<label class="opt" onclick="selectOpt(this,'ac_combined')"><input type="radio" name="ac_combined" value="${v}"><span>${l}</span></label>`).join("");
@@ -1176,11 +1203,11 @@ function renderPreInvestment(){
   const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
   const reminderHtml=state.condition!=="Control"?`
     <div class="warn-box" style="margin-top:16px">
-      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>56,000 EU</strong>. <br><br>
-      <em>"${isLuck
+      <strong>Reminder:</strong> You were paired with participant <strong>${peerId()}</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>around 56,000 EU</strong>.<br><br>
+      ${isLuck
         ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
         :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well."
-      }"</em>
+      }
     </div>`:"";
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Investment Task</span><h2 class="card-title">Before You Begin</h2></div>
@@ -1216,18 +1243,9 @@ function renderRound(num){
       </td>
     </tr>`).join("");
   const nextLabel = num<3 ? "Go to next round →" : "Continue →";
-  const isLuckR=state.condition==="Luck"||state.condition==="LuckReflect";
-  const roundReminderHtml=state.condition!=="Control"?`
-    <div class="warn-box" style="margin-bottom:14px;font-size:13.5px">
-      <strong>Reminder:</strong> You were paired with participant <strong>P-42</strong>, who completed a similar investment task in an earlier session and earned a total of <strong>56,000 EU</strong>. <br><br>
-      <em>&ldquo;${isLuckR
-        ?'We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions.'
-        :'We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.'
-      }&rdquo;</em>
-    </div>`:"";
+  // Reminder box removed from investment rounds per protocol revision
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Round ${num} of 3</span><h2 class="card-title">Investment Decision</h2></div>
-    ${roundReminderHtml}
     <div class="info-box">Allocate your <strong>40,000 EU</strong> across the five assets using the column on the right. Your allocations must sum to exactly 40,000 EU.</div>
     <div class="sec-label">Asset Menu & Allocation</div>
     <div style="overflow-x:auto">
@@ -1432,9 +1450,16 @@ function startStudy(){
   checkEmailAndStart(email);
 }
 
-function startSurvey(){
+function startSurvey(assignedCondition, assignedConditionNum){
   state.pid = uid();
-  randomCondition();
+  const arms=["Control","Luck","Skill","LuckReflect"];
+  if(assignedCondition && arms.indexOf(assignedCondition) > -1){
+    state.condition    = assignedCondition;
+    state.conditionNum = Number(assignedConditionNum) || (arms.indexOf(assignedCondition)+1);
+  } else {
+    // Fallback only — used if the server is unreachable
+    randomCondition();
+  }
   randomLotteryOrder();
   console.log("Assigned:",state.condition,"| Lotteries:",state.lotteryOrder,"| PID:",state.pid,"| Email:",state.email);
   document.getElementById("app").innerHTML=`
@@ -1517,8 +1542,8 @@ function submitRecall(){
       if(!combinedOk&&!state.recallReprompted){
         state.recallReprompted=true;
         const info=isLuck
-          ?`Your paired participant's earnings in the experiment were <strong>56,000 EU</strong>. They responded: <em>"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."</em>`
-          :`Your paired participant's earnings in the experiment were <strong>56,000 EU</strong>. They responded: <em>"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well."</em>`;
+          ?`Your paired participant's earnings in the experiment were <strong>around 56,000 EU</strong>. We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions.`
+          :`Your paired participant's earnings in the experiment were <strong>around 56,000 EU</strong>. We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.`;
         const rp=document.getElementById("recall-reprompt");
         rp.innerHTML=`<div class="warn-box"><strong>Not quite.</strong> ${info} Please review your answer and continue.</div>`;
         rp.style.display="block";
