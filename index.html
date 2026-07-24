@@ -1231,7 +1231,7 @@ function renderPreInvestment(){
     <div class="card-header"><span class="block-badge">Investment Task</span><h2 class="card-title">Before You Begin</h2></div>
     <div class="info-box" style="font-size:14px;line-height:1.8">
       You are now about to begin the main investment task.<br><br>
-      The task consists of <strong>three investment rounds</strong>. After all rounds are completed, one round will be randomly selected for payment. Your earnings will depend on the investments you chose and the returns realized in the selected round.
+      The task consists of <strong>three investment rounds</strong>.<strong>AFTER ALL ROUNDS ARE COMPLETED, ONE ROUND WILL BE RANDOMLY SELECTED FOR PAYMENT.</strong> Your earnings will depend on the investments you chose and the returns realized in the selected round.
     </div>
     ${reminderHtml}
     <p style="font-size:14.5px;font-weight:600;color:var(--navy);margin-top:18px">You may now proceed to the investment task.</p>
@@ -1265,7 +1265,9 @@ function renderRound(num){
   // Reminder box removed from investment rounds per protocol revision
   return `<div class="card">
     <div class="card-header"><span class="block-badge">Round ${num} of 3</span><h2 class="card-title">Investment Decision</h2></div>
-    <div class="info-box">Allocate your <strong>40,000 EU</strong> across the five assets using the column on the right. Your allocations must sum to exactly 40,000 EU.</div>
+    <div class="info-box">Allocate your <strong>40,000 EU</strong> across the five assets using the column on the right. Your allocations must sum to exactly 40,000 EU.
+    Remember, you will play 3 investment rounds, out of which one will be randomly selected for payment.
+    </div>
     <div class="sec-label">Asset Menu & Allocation</div>
     <div style="overflow-x:auto">
       <table class="inst-table">
