@@ -122,7 +122,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 const CONFIG = {
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyPGBswg0ZeHwzx5Qx4hZ5GkV7LKVEMUWD0-RqPz5DOUxeEWSW4JWGmF0s9fZZNRQoD/exec",
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwJ6digMyoU_9UdTCVqoXbv2Ney8w1avrQtkgd3Zh11c3Y2eEOYAUoi7Ke96fu6nj0/exec",
   MAX_PARTICIPANTS: 80,
 };
 
@@ -348,7 +348,12 @@ function goSection(sec){
     block9b:renderBlock9b,
     block11:renderBlock11,
   };
-  if(fns[sec]) wrap.innerHTML=fns[sec]();
+  if(!fns[sec]){
+    console.warn("Unknown section '"+sec+"' — falling back to block1");
+    sec = "block1";
+    state.section = sec;
+  }
+  wrap.innerHTML=fns[sec]();
   if(postRender[sec]) postRender[sec]();
   attachHandlers(sec);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -392,8 +397,51 @@ function saveBlock(block, data){
     lotteryOrder: state.lotteryOrder || "",
     payRound:     state.payRound     || "",
     block,
+    section:      state.section      || "",   // section key for resume
     ...data
   });
+}
+
+// ── RESUME SECTION NORMALISATION ──────────────────────────────────────────
+// Newer rows store the section key directly (e.g. "block2"). Older rows stored
+// the data-block label (e.g. "B1_Demographics"), which is not a valid section
+// key — resuming on one of those produced a blank screen. Map the legacy
+// labels to the section the participant should land on next.
+const LEGACY_SECTION_MAP = {
+  "B1_Demographics":  "block2",
+  "B2_FinLit":        "block3",
+  "B4_Treatment":     "block4r",
+  "B4_AttentionCheck":"prelottery",
+  "B5_HoltLaury":     "lottery_b",
+  "B5b_LossAversion": "lottery_b",
+  "B_Round1":         "block7",
+  "B_Round2":         "block8",
+  "B_Round3":         "block8s",
+  "B_SelfAssess":     "block9",
+  "B9_Belief":        "block9b",
+  "B9b_RankBelief":   "block11",
+  "B11_Returns":      "block11",
+  "SURVEY_END":       "block1",
+};
+
+// Sections a participant may legitimately be resumed into.
+const RESUMABLE_SECTIONS = [
+  "block1","block2","block3","block3b","block4","block4r","prelottery",
+  "lottery_a","lottery_b","preInvestment","block6","block7","block8",
+  "block8s","block9","block9b","block11"
+];
+
+function normalizeSection(sec){
+  if(!sec) return "block1";
+  if(LEGACY_SECTION_MAP[sec]) return LEGACY_SECTION_MAP[sec];
+  // Never resume onto the landing/consent screens — those are pre-assignment
+  if(sec === "cover" || sec === "participantInfo" || sec === "consent") return "block1";
+  // Anything unrecognised restarts from the first post-consent block
+  if(RESUMABLE_SECTIONS.indexOf(sec) === -1){
+    console.warn("Unrecognised resume section '"+sec+"' — starting from block1");
+    return "block1";
+  }
+  return sec;
 }
 
 // ── EMAIL CHECK — JSONP via dynamic script tag ────────────────────────────
@@ -428,7 +476,7 @@ function checkEmailAndStart(email){
     } else if(res.status === "partial"){
       state.email = email;
       state.pid   = res.pid || uid();
-      state.resumeSection = res.lastSection || "block1";
+      state.resumeSection = normalizeSection(res.lastSection);
       // Restore the arm originally assigned to this participant
       if(res.condition){
         state.condition    = res.condition;
@@ -986,12 +1034,12 @@ function renderBlock4Recall(){
       items.push({
         id:"ac_combined",
         q:"Which of the following best describes your paired participant's earnings and what they attributed them to?",
-        correct:isLuck?"70k_luck":"70k_skill",
+        correct:isLuck?"56k_luck":"56k_skill",
         opts:[
-          ["70k_luck",  `Paired participant ${pid} earned around 56,000 EU, mainly due to luck.`],
-          ["70k_skill", `Paired participant ${pid} earned around 56,000 EU, mainly due to skill.`],
-          ["60k_luck",  `Paired participant ${pid} earned around 48,000 EU, mainly due to luck.`],
-          ["60k_skill", `Paired participant ${pid} earned around 48,000 EU, mainly due to skill.`],
+          ["56k_luck",  `Paired participant ${pid} earned around 56,000 EU, mainly due to luck.`],
+          ["56k_skill", `Paired participant ${pid} earned around 56,000 EU, mainly due to skill.`],
+          ["48k_luck",  `Paired participant ${pid} earned around 48,000 EU, mainly due to luck.`],
+          ["48k_skill", `Paired participant ${pid} earned around 48,000 EU, mainly due to skill.`],
         ]
       });
     }
