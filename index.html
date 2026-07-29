@@ -139,7 +139,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 const CONFIG = {
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyTPg9FYhs_b0cDR_npAZ8RuQNExqpDeHdHNK65MCiitPBkNl3UAeKd4ls2zG2XPTt0/exec",
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxUU2z4gnr1GPgbDM_petDs0Xv8ULLI_yb1k18wBzexC6ocFNKJQpXLkDdLeeDJp5G6/exec",
   MAX_PARTICIPANTS: 80,
 };
 
@@ -182,6 +182,7 @@ const ASSETS_R3 = {
   V:   { label:"Asset V", mean:18, sd:35, ret:"+18%", range:"-17% to +53%", desc:"Derivatives / speculative" },
 };
 const ENDOWMENT   = 40000;
+const EU_TO_INR   = 0.007;   // 100 EU = ₹0.70  (investment payout only)
 const PEER_EARNINGS_EU = 56000; // peer earned around 56,000 EU (40% return on 40,000 EU endowment)
 
 // Fixed peer IDs per treatment arm — formatted to match participant IDs so the
@@ -593,10 +594,10 @@ function renderCover(){
   return `<div class="cover">
     <div class="cover-logo">Management Development Institute Gurgaon</div>
     <h1 class="cover-title">Investment Decision Study</h1>
-    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Average earnings: ₹700 (min ₹100, max ₹1,400).</p>
+    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Average earnings: ₹650 (min ₹100, max ₹1,100).</p>
     <div class="cover-meta">
       <div class="meta-item"><div class="meta-label">Duration</div><div class="meta-value">~15 minutes</div></div>
-      <div class="meta-item"><div class="meta-label">Earnings</div><div class="meta-value">Min ₹100 · Avg ₹700 · Max ₹1,400</div></div>
+      <div class="meta-item"><div class="meta-label">Earnings</div><div class="meta-value">Min ₹100 · Avg ₹650 · Max ₹1,100</div></div>
       <div class="meta-item"><div class="meta-label">Researchers</div><div class="meta-value">Dr. Puneet Arora &amp; Dr. Divya Agarwal</div></div>
     </div>
     <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px 20px;max-width:380px;width:100%;margin-bottom:22px;text-align:left">
@@ -640,7 +641,7 @@ function renderParticipantInfo(){
     <div class="sec-label">Do you have to participate?</div>
     <div class="info-box">No, your participation is voluntary. You may decide not to participate at all or, if you start the study, you may withdraw at any time by just closing the link. If you would like to participate, you will have to give your consent at the end of this form.</div>
     <div class="sec-label">Will there be any compensation?</div>
-    <div class="info-box">Each participant receives a fixed participation fee of Rs. 100 regardless of performance. Some individual tasks may have negative payoffs, but your total earnings will never be below the minimum guaranteed participation reward of Rs. 100. In addition, participants can earn an additional amount of up to Rs. 1400, based on their decisions made during the survey.</div>
+    <div class="info-box">Each participant receives a fixed participation fee of Rs. 100 regardless of performance. Some individual tasks may have negative payoffs, but your total earnings will never be below the minimum guaranteed participation reward of Rs. 100. In addition, participants can earn an additional amount of up to Rs. 1000, based on their decisions made during the survey, with average total earnings of approximately Rs. 650.</div>
     <div class="sec-label">Privacy &amp; Confidentiality</div>
     <div class="info-box">Participant privacy will be protected throughout all stages of the study. Each participant will be assigned a unique numeric identification code at the start of the session. Names and other direct identifiers will not be used in the dataset used for analysis. While we do collect contact information, they are collected for payment purposes and for audit by the accounts office, and will be stored separately from your decision data and will not be linked to responses once compensation has been processed. Study results will be reported only in aggregate form so that no individual can be identified.</div>
     <div class="sec-label">Whom to contact with questions about the study?</div>
@@ -852,7 +853,7 @@ function renderBlock3(){
       • At the start of each round, you will receive <strong>40,000 Experimental Units (EU)</strong> to invest.<br>
       • Allocate the 40,000 EU across five assets. Your allocations must sum to exactly 40,000 EU.<br>
       • Each asset can generate different returns. The return for each asset will be randomly drawn from the range shown next to it.<br>
-      • Your final earnings will be paid at the rate of 100 EU = ₹1.<br>
+      • Your final earnings will be paid at the rate of 100 EU = ₹0.70.<br>
       • After this practice round, you will answer a few understanding questions before the main investment game begins.
     </div>
     <div class="sec-label">Asset Menu</div>
@@ -864,7 +865,7 @@ function renderBlock3(){
     <div class="warn-box">
       You invest 20,000 EU in Asset H and 20,000 EU in Asset V. If Asset H drew <strong>+26%</strong> and Asset V drew <strong>+40%</strong>:<br>
       Portfolio value = 40,000 (Principal) + (20,000 × 26%) + (20,000 × 40%) = <strong>66,000 EU</strong><br>
-      → payout = <strong>₹660</strong>
+      → payout = 66,000 × ₹0.007 = <strong>₹462</strong>
     </div>
     <div class="sec-label">Try It Yourself — Return Explorer</div>
     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">For each simulation, a random number within the return range is independently drawn for each of the five asset classes.</p>
@@ -1400,8 +1401,10 @@ function renderSelfAssess(){
     <div class="q-block">
       <div class="q-label">Which statement best describes your overall approach across the three investment rounds? We'd appreciate an honest response here.</div>
       <div class="options">
-        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="2"><span><strong>A.</strong> I followed a consistent strategy and used the available information to guide my investment decisions.</span></label>
-        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="3"><span><strong>B.</strong> I did not follow a specific strategy and my decisions were mostly close to random.</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="1"><span>A desire to match or exceed a specific reference point</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="2"><span>My own general comfort with financial risk</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="3"><span>A specific investment strategy or objective I had in mind</span></label>
+        <label class="opt" onclick="selectOpt(this,'self_attr')"><input type="radio" name="self_attr" value="4"><span>Mostly random or intuitive choices, without a clear reason</span></label>
       </div>
     </div>
     <div id="err-self" class="error-box">Please make a selection.</div>
@@ -1456,7 +1459,7 @@ function renderBlock11(){
   });
   state.returns=rounds;
   const payEU=Math.round(ENDOWMENT*(1+parseFloat(rounds[state.payRound-1].portfolio.toFixed(1))/100));
-  const payINR=payEU/100;
+  const payINR=payEU*EU_TO_INR;
   // Bonus question: correct if their yes/no prediction matches whether the
   // return in the randomly selected round is at least 20,000 EU
   const belief=state.answers.belief_yn;
@@ -1533,7 +1536,7 @@ function revealAndFinish(){
   const l1Pay=(l1IsHL?hl:la)?.payout||0;
   const l2Pay=(l1IsHL?la:hl)?.payout||0;
   const payEU=Math.round(ENDOWMENT*(1+parseFloat(state.returns[state.payRound-1].portfolio.toFixed(1))/100));
-  const payINR=payEU/100;
+  const payINR=payEU*EU_TO_INR;
   const bonus=state.bonus||0;
   const total=Math.min(1500,Math.round((Math.max(100,100+payINR+l1Pay+l2Pay+bonus))/50)*50);
   const l1Col=l1Pay>=0?"color:var(--amber)":"color:var(--red)";
@@ -1545,7 +1548,7 @@ function revealAndFinish(){
       <p style="color:rgba(255,255,255,0.6);font-size:13px;text-align:center;margin-bottom:16px">★ Investment Round <strong style="color:var(--amber)">${state.payRound}</strong> was randomly selected for your payment.</p>
       <table style="width:100%;font-size:13px;border-collapse:collapse">
         <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Fixed participation fee</td><td style="padding:8px 4px;text-align:right;color:var(--white);font-weight:600">₹100</td></tr>
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Investment Round ${state.payRound} (${payEU.toLocaleString("en-IN")} units ÷ 100)</td><td style="padding:8px 4px;text-align:right;color:var(--amber);font-weight:600">${fmtINR(payINR)}</td></tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Investment Round ${state.payRound} (${payEU.toLocaleString("en-IN")} EU × 0.007)</td><td style="padding:8px 4px;text-align:right;color:var(--amber);font-weight:600">${fmtINR(payINR)}</td></tr>
         <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Lottery 1 payout (Row ${(l1IsHL?hl:la)?.row||"—"})</td><td style="padding:8px 4px;text-align:right;font-weight:600;${l1Col}">${l1Pay>=0?fmtINR(l1Pay):"-"+fmtINR(-l1Pay)}</td></tr>
         <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Lottery 2 payout (Row ${(l1IsHL?la:hl)?.row||"—"})</td><td style="padding:8px 4px;text-align:right;font-weight:600;${l2Col}">${l2Pay>=0?fmtINR(l2Pay):"-"+fmtINR(-l2Pay)}</td></tr>
         <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Bonus question (${state.bonusCorrect?"answered correctly":"answered incorrectly"})</td><td style="padding:8px 4px;text-align:right;font-weight:600;${bCol}">${fmtINR(bonus)}</td></tr>
