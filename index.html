@@ -77,6 +77,23 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .treatment-box{border-radius:10px;padding:15px 18px;margin-bottom:12px;border:1.5px solid var(--light)}
 .treatment-box.luck{background:#FFF9E6;border-color:#E8A020}
 .treatment-box.skill{background:#EBF5FF;border-color:#2E75B6}
+.pi-ico{display:inline-flex;align-items:center;justify-content:center;color:var(--navy);flex-shrink:0}
+.attr-hero{display:flex;gap:20px;align-items:center;border-radius:14px;padding:22px 26px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,0.05)}
+.attr-hero.luck{background:linear-gradient(135deg,#FEF6E3 0%,#FBE9C8 100%);border:2px solid #F0C674}
+.attr-hero.skill{background:linear-gradient(135deg,#E9F6EE 0%,#D5EDDF 100%);border:2px solid #9BD3AF}
+.attr-hero-icon{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:88px}
+.attr-hero-body{flex:1}
+.attr-hero-title{font-family:var(--font-h);font-size:24px;font-weight:700;line-height:1.15;margin-bottom:10px}
+.attr-hero.luck .attr-hero-title{color:#C97A10}
+.attr-hero.skill .attr-hero-title{color:#157A3C}
+.attr-hero-text{font-size:15.5px;line-height:1.65;color:var(--dark);margin:0}
+.attr-hero.luck .attr-hero-text strong{color:#B36F0C;font-weight:700}
+.attr-hero.skill .attr-hero-text strong{color:#12703A;font-weight:700}
+@media(max-width:560px){
+  .attr-hero{flex-direction:column;text-align:center;gap:12px;padding:20px 18px}
+  .attr-hero-icon{width:auto}
+  .attr-hero-title{font-size:21px}
+}
 .gap-note{background:rgba(212,137,26,0.12);border-radius:6px;padding:9px 13px;margin-top:9px;font-size:13.5px;font-weight:500;color:var(--dark)}
 .timer-bar-wrap{background:var(--light);border-radius:6px;height:8px;margin-bottom:14px;overflow:hidden}
 .timer-bar-fill{height:100%;background:var(--green);border-radius:6px;transition:width 1s linear}
@@ -178,6 +195,39 @@ function peerId(){ return PEER_IDS[state.condition] || PEER_IDS.Luck; }
 
 // Human silhouette avatar (inline SVG) — replaces the "P42" text avatar
 const PEER_AVATAR_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.3 0-9.8 1.6-9.8 4.9v2.5h19.6v-2.5c0-3.3-6.5-4.9-9.8-4.9z"/></svg>`;
+
+// Small info-row icons for the peer detail box
+const ICON_IDCARD = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M5 16c0-1.7 1.6-3 3.5-3s3.5 1.3 3.5 3"/><line x1="15" y1="9" x2="19" y2="9"/><line x1="15" y1="13" x2="19" y2="13"/></svg>`;
+const ICON_LINK = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`;
+const ICON_COINS = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>`;
+
+// Attribution hero icons — a trophy for the "luck" framing (a windfall reward)
+// and a target/precision mark for the "skill" framing (deliberate strategy).
+const ATTR_ICON_LUCK = `<svg viewBox="0 0 64 64" width="72" height="72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#D4891A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 10h24v10a12 12 0 0 1-24 0V10z" fill="#F6C651"/>
+    <path d="M20 14h-6a6 6 0 0 0 6 10" fill="#FDF3DC"/>
+    <path d="M44 14h6a6 6 0 0 1-6 10" fill="#FDF3DC"/>
+    <path d="M32 32v8" />
+    <path d="M24 40h16l2 8H22l2-8z" fill="#F6C651"/>
+    <path d="M20 52h24" />
+  </g>
+  <path d="M32 15l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L32 15z" fill="#E8941C"/>
+  <g stroke="#F6C651" stroke-width="2" stroke-linecap="round">
+    <path d="M12 8l-2-3M8 14l-3.5-1M54 8l2-3M56 14l3.5-1"/>
+  </g>
+</svg>`;
+const ATTR_ICON_SKILL = `<svg viewBox="0 0 64 64" width="72" height="72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#1B7A44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="32" cy="32" r="20" fill="#E4F3E9"/>
+    <circle cx="32" cy="32" r="13" fill="#FFFFFF"/>
+    <circle cx="32" cy="32" r="6" fill="#C7E6D2"/>
+    <circle cx="32" cy="32" r="1.6" fill="#1B7A44" stroke="none"/>
+  </g>
+  <path d="M32 6v6M32 52v6M6 32h6M52 32h6" stroke="#1B7A44" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M46 18l6-6M52 12l-1.5 5 5-1.5" stroke="#1B7A44" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>`;
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -949,21 +999,34 @@ function renderBlock4(){
   if(state.condition==="Control"){ goSection("block4r"); return ""; }
   const isLuck=state.condition==="Luck"||state.condition==="LuckReflect";
   const cls=isLuck?"luck":"skill";
-  const label=isLuck?"Luck":"Skill";
-  const quote=isLuck
-    ?"We believe their high earnings were mainly due to luck. We found they spent relatively little time thinking before investing, and their investment choices happened to be matched with favorable market conditions."
-    :"We believe their high earnings were mainly due to skill. We found they spent relatively more time thinking before investing, and their investment choices reflected a strategy that performed well.";
   const pid=peerId();
+
+  // Attribution statement with key phrases emphasised for a stronger,
+  // more memorable manipulation.
+  const attrHtml=isLuck
+    ? `We believe their high earnings were mainly due to <strong>luck</strong>. They spent <strong>relatively little time thinking</strong> before investing, and their investment choices happened to be matched with <strong>favorable market conditions</strong>.`
+    : `We believe their high earnings were mainly due to <strong>skill</strong>. They spent <strong>relatively more time thinking</strong> before investing, and their investment choices reflected a <strong>strategy that performed well</strong>.`;
+
+  const heroHeading=isLuck ? "Why did they earn so much?" : "Why did they earn so much?";
+  const heroIcon=isLuck ? ATTR_ICON_LUCK : ATTR_ICON_SKILL;
+
   const peerCard=`<div class="peer-card"><div class="peer-avatar">${PEER_AVATAR_SVG}</div><div class="peer-info"><div class="peer-name">Participant ${pid}</div><div class="peer-sub">Management Development Institute, Gurgaon</div></div></div>`;
+
   const content=`
     <p style="font-size:14px;line-height:1.7;margin-bottom:14px">In this investment game, you have been matched with a participant who completed a similar task in an earlier session. Before you begin, we will show you some information about this participant's outcome in the task. This information is provided for reference only. The other participant's earnings will not affect your investment opportunities, returns, or earnings in any way. Your earnings will depend solely on your own investment decisions and the returns realized during the task.</p>
     ${peerCard}
-    <div class="info-box" style="margin-bottom:14px">
-      Your Participant ID: <strong>${state.pid}</strong><br>
-      Your paired participant ID: <strong>${pid}</strong><br>
-      Your paired participant's earnings in the investment decisions: <strong>around 56,000 EU</strong>
+    <div class="info-box" style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px"><span class="pi-ico">${ICON_IDCARD}</span><span>Your Participant ID: <strong>${state.pid}</strong></span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px"><span class="pi-ico">${ICON_LINK}</span><span>Your Paired Participant ID: <strong>${pid}</strong></span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span class="pi-ico">${ICON_COINS}</span><span>Your Paired Participant's Earnings: <strong style="font-size:19px;color:var(--navy)">around 56,000 EU</strong></span></div>
     </div>
-    <div class="treatment-box ${cls}"><p style="font-size:14px;line-height:1.6">${quote}</p></div>`;
+    <div class="attr-hero ${cls}">
+      <div class="attr-hero-icon">${heroIcon}</div>
+      <div class="attr-hero-body">
+        <div class="attr-hero-title">${heroHeading} <span style="font-size:18px">&#10024;</span></div>
+        <p class="attr-hero-text">${attrHtml}</p>
+      </div>
+    </div>`;
   const reflHtml=state.condition==="LuckReflect"?`
     <div style="margin-top:20px;padding-top:16px;border-top:1.5px solid var(--light)">
       <div class="sec-label">Before you invest — your goals</div>
