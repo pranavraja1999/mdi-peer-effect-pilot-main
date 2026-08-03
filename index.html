@@ -594,10 +594,10 @@ function renderCover(){
   return `<div class="cover">
     <div class="cover-logo">Management Development Institute Gurgaon</div>
     <h1 class="cover-title">Investment Decision Study</h1>
-    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Average earnings: ₹650 (min ₹100, max ₹1,100).</p>
+    <p class="cover-sub">A research study on financial decision-making. Your participation is voluntary and fully confidential. Average earnings: ₹600 - ₹700 (min ₹100, max ₹1,100).</p>
     <div class="cover-meta">
       <div class="meta-item"><div class="meta-label">Duration</div><div class="meta-value">~15 minutes</div></div>
-      <div class="meta-item"><div class="meta-label">Earnings</div><div class="meta-value">Min ₹100 · Avg ₹650 · Max ₹1,100</div></div>
+      <div class="meta-item"><div class="meta-label">Earnings</div><div class="meta-value">Min ₹100 · Avg ₹600 - ₹700 · Max ₹1,100</div></div>
       <div class="meta-item"><div class="meta-label">Researchers</div><div class="meta-value">Dr. Puneet Arora &amp; Dr. Divya Agarwal</div></div>
     </div>
     <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px 20px;max-width:380px;width:100%;margin-bottom:22px;text-align:left">
@@ -1554,8 +1554,8 @@ function revealAndFinish(){
         <tr style="border-bottom:1px solid rgba(255,255,255,0.12)"><td style="padding:8px 4px;color:rgba(255,255,255,0.6)">Bonus question (${state.bonusCorrect?"answered correctly":"answered incorrectly"})</td><td style="padding:8px 4px;text-align:right;font-weight:600;${bCol}">${fmtINR(bonus)}</td></tr>
         <tr style="background:rgba(255,255,255,0.06)"><td style="padding:10px 4px;color:var(--white);font-weight:700;font-size:14px">Total payment</td><td style="padding:10px 4px;text-align:right;color:var(--amber);font-weight:700;font-size:16px">${fmtINR(total)}</td></tr>
       </table>
-      <p style="color:rgba(255,255,255,0.5);font-size:12px;text-align:center;margin-top:14px">All payments processed within one week.<br>Questions: <strong style="color:var(--amber)">puneet.arora@mdi.ac.in</strong></p>
-      <p style="color:rgba(255,255,255,0.25);font-size:11px;text-align:center;margin-top:8px">ID: ${state.pid} · MDI Gurgaon · AEA RCT Registry</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:12px;text-align:center;margin-top:14px"> Show this screen to the research instructor in the room to collect your payment.<br>Questions: <strong style="color:var(--amber)">puneet.arora@mdi.ac.in</strong></p>
+      <p style="color:rgba(255,255,255,0.25);font-size:11px;text-align:center;margin-top:8px">ID: ${state.pid}  MDI Gurgaon </p>
     </div>`;
   document.getElementById("final-section").style.display="block";
   window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
